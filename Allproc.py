@@ -7,33 +7,63 @@ from multiprocessing.pool import ThreadPool
 from tqdm import tqdm
 
  
-def download_url(url):
-  print("downloading:  ",url +'\n')
-  # assumes that the last segment after the / represents the file name
-  # if url is abc/xyz/file.txt, the file name will be file.txt
-  file_name_start_pos = url.rfind("/") + 1
-  file_name = url[file_name_start_pos:]
- 
-  r = requests.get(url, stream=True)
-  
- 
-  if r.status_code == requests.codes.ok:
-    with open(file_name, 'wb') as f:
-      for data in r:
-        f.write(data)
-  return url
-  
-urls = ["https://static.stooq.com/db/h/d_world_txt.zip",
-        "https://static.stooq.com/db/h/d_us_txt.zip",
-        "https://static.stooq.com/db/h/h_world_txt.zip",
-        "https://static.stooq.com/db/h/h_us_txt.zip"]
- 
-# Run 5 multiple threads. Each call will take the next element in urls list
-results = ThreadPool(4).imap_unordered(download_url, urls)
-for r in results:
-    print(r)
-    
-print("DESCARGAS FINALIZADAS")
+url = "https://static.stooq.com/db/h/d_world_txt.zip" #big file test
+# Streaming, so we can iterate over the response.
+response = requests.get(url, stream=True)
+total_size_in_bytes= int(response.headers.get('content-length', 0))
+block_size = 1024 #1 Kibibyte
+progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+with open('d_world_txt.zip', 'wb') as file:
+    for data in response.iter_content(block_size):
+        progress_bar.update(len(data))
+        file.write(data)
+progress_bar.close()
+if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+    print("ERROR, something went wrong")
+
+url = "https://static.stooq.com/db/h/d_us_txt.zip" #big file test
+# Streaming, so we can iterate over the response.
+response = requests.get(url, stream=True)
+total_size_in_bytes= int(response.headers.get('content-length', 0))
+block_size = 1024 #1 Kibibyte
+progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+with open('d_us_txt.zip', 'wb') as file:
+    for data in response.iter_content(block_size):
+        progress_bar.update(len(data))
+        file.write(data)
+progress_bar.close()
+if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+    print("ERROR, something went wrong")
+
+url = "https://static.stooq.com/db/h/h_world_txt.zip" #big file test
+# Streaming, so we can iterate over the response.
+response = requests.get(url, stream=True)
+total_size_in_bytes= int(response.headers.get('content-length', 0))
+block_size = 1024 #1 Kibibyte
+progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+with open('h_world_txt.zip', 'wb') as file:
+    for data in response.iter_content(block_size):
+        progress_bar.update(len(data))
+        file.write(data)
+progress_bar.close()
+if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+    print("ERROR, something went wrong")
+
+url = "https://static.stooq.com/db/h/h_us_txt.zip" #big file test
+# Streaming, so we can iterate over the response.
+response = requests.get(url, stream=True)
+total_size_in_bytes= int(response.headers.get('content-length', 0))
+block_size = 1024 #1 Kibibyte
+progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+with open('h_us_txt.zip', 'wb') as file:
+    for data in response.iter_content(block_size):
+        progress_bar.update(len(data))
+        file.write(data)
+progress_bar.close()
+if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+    print("ERROR, something went wrong")
+
+
 
 ########################### FIN DE DESCARGAS ###############################
 
@@ -73,7 +103,7 @@ for name in tqdm(z.namelist()):
     z.extract(name, outpath)
 fh.close()
 
-print("Borrando prn.txt /n")
+print("Borrando prn.txt \n")
 
 zin = zipfile.ZipFile ('d_us_txt.zip', 'r')
 zout = zipfile.ZipFile ('d_us1_txt.zip', 'w')
@@ -87,7 +117,7 @@ zin.close()
 print("d_us1_txt.zip \n")
 fh = open('d_us1_txt.zip', 'rb')
 z = zipfile.ZipFile(fh)
-for name in z.namelist():   
+for name in tqdm(z.namelist()):   
         outpath = r'C:\USAdb\d_us_txt'
         z.extract(name, outpath)
 fh.close()
